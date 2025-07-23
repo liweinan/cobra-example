@@ -14,6 +14,7 @@
 - 🎯 **子命令支持**: 层次化的命令结构，便于组织复杂功能
 - 🌍 **国际化支持**: 中文界面，易于理解和使用
 - ⚡ **高性能**: 基于 Go 语言，编译后为单一可执行文件
+- 🖥️ **跨平台支持**: 支持 Windows、macOS、Linux，包含 Windows 用户体验优化
 
 ## 📋 功能列表
 
@@ -130,6 +131,14 @@ cobra-example/
 └── cobra-example        # 编译后的可执行文件
 ```
 
+### 📦 依赖说明
+
+| 依赖包 | 版本 | 作用 |
+|--------|------|------|
+| `github.com/spf13/cobra` | v1.9.1 | 核心 CLI 框架 |
+| `github.com/spf13/pflag` | v1.0.6 | POSIX 兼容的标志处理 |
+| `github.com/inconshreveable/mousetrap` | v1.1.0 | Windows 平台用户体验优化 |
+
 ## 🔧 开发指南
 
 ### 添加新命令
@@ -186,6 +195,52 @@ golangci-lint run
 4. **标志系统**: 短标志和长标志的定义
 5. **帮助系统**: 自动生成帮助信息
 6. **错误处理**: 优雅的错误处理和退出
+
+## 🔧 技术细节
+
+### Mousetrap 机制
+
+本项目使用了 `github.com/inconshreveable/mousetrap` 库，这是一个专门为 Windows 平台设计的用户体验优化工具。
+
+#### 🐭 作用说明
+
+- **检测启动方式**: 检测 CLI 程序是否通过 Windows 资源管理器双击启动
+- **防止误操作**: 当用户双击程序时显示帮助信息，引导正确使用
+- **跨平台兼容**: 在 macOS/Linux 上不执行任何操作
+
+#### 💻 Windows 上的行为
+
+当 Windows 用户双击 CLI 程序时：
+
+```
+This is a command line tool.
+
+You need to open cmd.exe and run it from there.
+```
+
+程序会等待 5 秒后自动退出，或等待用户按回车键。
+
+#### ⚙️ 配置选项
+
+```go
+// 自定义帮助文本
+var MousetrapHelpText = `自定义的帮助信息`
+
+// 控制显示时长（0 表示等待用户按键）
+var MousetrapDisplayDuration = 5 * time.Second
+
+// 完全禁用 mousetrap
+var MousetrapHelpText = ""
+```
+
+#### 🌍 平台兼容性
+
+| 平台 | 行为 |
+|------|------|
+| Windows | 检测双击启动，显示帮助信息 |
+| macOS/Linux | 无特殊行为，正常执行 |
+
+这个机制确保了跨平台 CLI 工具在 Windows 上的良好用户体验！
 
 ## 🤝 贡献指南
 
